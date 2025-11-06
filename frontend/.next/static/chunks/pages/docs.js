@@ -33,4 +33,7 @@ eval(__webpack_require__.ts("__webpack_require__.r(__webpack_exports__);\n/* har
 /******/ function(__webpack_require__) { // webpackRuntimeModules
 /******/ var __webpack_exec__ = function(moduleId) { return __webpack_require__(__webpack_require__.s = moduleId); }
 /******/ __webpack_require__.O(0, ["pages/_app","main"], function() { return __webpack_exec__("../node_modules/next/dist/build/webpack/loaders/next-client-pages-loader.js?absolutePagePath=D%3A%5CKoding%5COmniPay%5Cfrontend%5Cpages%5Cdocs.tsx&page=%2Fdocs!"); });
-/******/ var __webp
+/******/ var __webpack_exports__ = __webpack_require__.O();
+/******/ _N_E = __webpack_exports__;
+/******/ }
+]);
