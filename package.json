@@ -1,0 +1,17 @@
+{
+  "name": "omnipay",
+  "private": true,
+  "workspaces": [
+    "contracts",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "node backend/server.js",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:contracts": "npm --prefix contracts run build",
+    "deploy:mumbai": "npm --prefix contracts run deploy:mumbai"
+  }
+}
+
+
