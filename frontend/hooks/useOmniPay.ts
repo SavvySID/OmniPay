@@ -201,6 +201,42 @@ export function useOmniPay() {
     },
   });
 
+  // Helper to detect RPC connection errors
+  const isRpcError = (error: any): boolean => {
+    const msg = (error?.message || error?.shortMessage || "").toLowerCase();
+    return (
+      msg.includes("rpc endpoint") ||
+      msg.includes("not found or unavailable") ||
+      msg.includes("network error") ||
+      msg.includes("failed to fetch") ||
+      msg.includes("connection") ||
+      error?.code === "NETWORK_ERROR"
+    );
+  };
+
+  // Retry wrapper for RPC operations
+  const retryRpcOperation = async <T>(
+    operation: () => Promise<T>,
+    maxRetries: number = 2,
+    delay: number = 1000
+  ): Promise<T> => {
+    let lastError: any;
+    for (let i = 0; i <= maxRetries; i++) {
+      try {
+        return await operation();
+      } catch (error: any) {
+        lastError = error;
+        if (isRpcError(error) && i < maxRetries) {
+          // Wait before retry with exponential backoff
+          await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+          continue;
+        }
+        throw error;
+      }
+    }
+    throw lastError;
+  };
+
   async function approveUSDT(amount: bigint, manageLoadingState: boolean = true, setTransactionHash: boolean = true) {
     if (!usdtAddress || isZeroAddress(usdtAddress) || !routerAddress) {
       throw new Error("USDT or Router address not configured. Please configure a valid USDT address for this network.");
@@ -214,40 +250,45 @@ export function useOmniPay() {
       setTxLoading(true);
     }
     try {
-			// Estimate gas defensively to avoid providers returning null gasLimit
-			let gasEstimate: bigint | undefined = undefined;
-			try {
-				if (publicClient) {
-					gasEstimate = await publicClient.estimateContractGas({
-						account: address as `0x${string}`,
-						address: usdtAddress,
-						abi: erc20Abi,
-						functionName: "approve",
-						args: [routerAddress, amount],
-					});
-				}
-			} catch {
-				// fallback below
-			}
-			// If estimation failed, use a safe fallback for ERC20 approve
-			if (!gasEstimate) {
-				gasEstimate = 200000n;
-			}
-      const hash = await writeContractAsync({
-        account: address as `0x${string}`,
-        chain: chainId === 80002 ? polygonAmoy : chainId === 11155111 ? sepolia : undefined,
-        address: usdtAddress,
-        abi: erc20Abi,
-        functionName: "approve",
-				args: [routerAddress, amount],
-				gas: gasEstimate,
+      const hash = await retryRpcOperation(async () => {
+        // Estimate gas defensively to avoid providers returning null gasLimit
+        let gasEstimate: bigint | undefined = undefined;
+        try {
+          if (publicClient) {
+            gasEstimate = await publicClient.estimateContractGas({
+              account: address as `0x${string}`,
+              address: usdtAddress,
+              abi: erc20Abi,
+              functionName: "approve",
+              args: [routerAddress, amount],
+            });
+          }
+        } catch {
+          // fallback below
+        }
+        // If estimation failed, use a safe fallback for ERC20 approve
+        if (!gasEstimate) {
+          gasEstimate = 200000n;
+        }
+        return await writeContractAsync({
+          account: address as `0x${string}`,
+          chain: chainId === 80002 ? polygonAmoy : chainId === 11155111 ? sepolia : undefined,
+          address: usdtAddress,
+          abi: erc20Abi,
+          functionName: "approve",
+          args: [routerAddress, amount],
+          gas: gasEstimate,
+        });
       });
       if (setTransactionHash) {
         setTxHash(hash);
       }
       return hash;
     } catch (err: any) {
-      const errorMsg = err?.message || err?.shortMessage || "Approval failed";
+      let errorMsg = err?.message || err?.shortMessage || "Approval failed";
+      if (isRpcError(err)) {
+        errorMsg = "RPC connection error. Please try again or reconnect your wallet if the issue persists.";
+      }
       setError(errorMsg);
       throw err;
     } finally {
@@ -343,21 +384,26 @@ export function useOmniPay() {
 			if (!routerGas) {
 				routerGas = 300000n;
 			}
-			const hash = await writeContractAsync({
-        account: address as `0x${string}`,
-        chain: chainId === 80002 ? polygonAmoy : chainId === 11155111 ? sepolia : undefined,
-        address: routerAddress,
-        abi: routerAbi,
-        functionName: "sendCrossChainUSDT",
-        args: [amountWei, targetChainId as number, recipient as `0x${string}`],
-				value: 0n,
-				gas: routerGas,
-      });
+			const hash = await retryRpcOperation(async () => {
+				return await writeContractAsync({
+					account: address as `0x${string}`,
+					chain: chainId === 80002 ? polygonAmoy : chainId === 11155111 ? sepolia : undefined,
+					address: routerAddress,
+					abi: routerAbi,
+					functionName: "sendCrossChainUSDT",
+					args: [amountWei, targetChainId as number, recipient as `0x${string}`],
+					value: 0n,
+					gas: routerGas,
+				});
+			});
       
       setTxHash(hash);
       return hash;
     } catch (err: any) {
-      const errorMsg = err?.message || err?.shortMessage || "Transaction failed";
+      let errorMsg = err?.message || err?.shortMessage || "Transaction failed";
+      if (isRpcError(err)) {
+        errorMsg = "RPC connection error. Please try again or reconnect your wallet if the issue persists.";
+      }
       setError(errorMsg);
       // Clear txHash if send transaction fails (approval hash shouldn't be shown)
       setTxHash(null);
