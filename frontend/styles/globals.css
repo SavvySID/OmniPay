@@ -82,6 +82,13 @@ a {
   gap: 18px;
 }
 
+/* Prevent navbar overlap on smaller screens by hiding center links */
+@media (max-width: 900px) {
+  .nav-links {
+    display: none;
+  }
+}
+
 .nav-link {
   color: var(--muted);
   padding: 8px 10px;
