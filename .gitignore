@@ -282,3 +282,11 @@ Two-Detailed-fts.md
 *.md
 **/*.md
 ![Rr][Ee][Aa][Dd][Mm][Ee].[Mm][Dd]
+
+# Repo hygiene: ignore example envs and local-only extras
+frontend/env.example
+backend/env.example
+contracts/env.example
+contracts/scripts/deploy-mock-usdt.ts
+contracts/contracts/MockUSDT.sol
+contracts/tsconfig.json
