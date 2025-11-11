@@ -16,7 +16,7 @@ contract MockAxelarBridge {
     // For simplicity, store a single receiver address (e.g., the same chain deployment for mock flow).
     address public receiver;
 
-    event CrossChainMessageSent(uint16 indexed destChainId, bytes payload);
+    event CrossChainMessageSent(uint32 indexed destChainId, bytes payload);
 
     constructor(address _receiver) {
         receiver = _receiver;
@@ -26,7 +26,7 @@ contract MockAxelarBridge {
         receiver = _receiver;
     }
 
-    function sendCrossChainMessage(uint16 destChainId, bytes calldata payload) external payable {
+    function sendCrossChainMessage(uint32 destChainId, bytes calldata payload) external payable {
         emit CrossChainMessageSent(destChainId, payload);
 
         // Decode and immediately forward for demo
