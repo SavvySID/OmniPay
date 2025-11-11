@@ -10,6 +10,7 @@
     "dev:backend": "node backend/server.js",
     "dev:frontend": "npm --prefix frontend run dev",
     "dev:contracts": "npm --prefix contracts run build",
+    "deploy:amoy": "npm --prefix contracts run deploy:amoy",
     "deploy:mumbai": "npm --prefix contracts run deploy:mumbai"
   }
 }
