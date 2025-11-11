@@ -1,29 +1,59 @@
+"use client";
+
 import type { AppProps } from "next/app";
-import { WagmiConfig, createConfig, http } from "wagmi";
-import { polygonMumbai, sepolia } from "wagmi/chains";
+import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { sepolia } from "wagmi/chains";
+import { defineChain } from "viem";
+import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
 import Layout from "../components/Layout";
 
+// Define Polygon Amoy testnet (Chain ID 80002)
+// Note: polygonMumbai is deprecated, using polygonAmoy instead
+const polygonAmoy = defineChain({
+  id: 80002,
+  name: "Polygon Amoy",
+  nativeCurrency: {
+    name: "POL",
+    symbol: "POL",
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: [process.env.NEXT_PUBLIC_POLYGON_AMOY_RPC || "https://rpc-amoy.polygon.technology"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "Polygonscan",
+      url: "https://amoy.polygonscan.com",
+    },
+  },
+  testnet: true,
+});
+
 const queryClient = new QueryClient();
 
-const config = createConfig({
-  chains: [polygonMumbai, sepolia],
-  transports: {
-    [polygonMumbai.id]: http(process.env.NEXT_PUBLIC_POLYGON_MUMBAI_RPC),
-    [sepolia.id]: http(process.env.NEXT_PUBLIC_SEPOLIA_RPC),
-  },
+const config = getDefaultConfig({
+  appName: "OmniPay",
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "YOUR_PROJECT_ID",
+  chains: [polygonAmoy, sepolia],
+  ssr: false, // Disable SSR to avoid ESM/CommonJS issues with WalletConnect
 });
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <WagmiConfig config={config}>
+    <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <RainbowKitProvider>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </RainbowKitProvider>
       </QueryClientProvider>
-    </WagmiConfig>
+    </WagmiProvider>
   );
 }
 
