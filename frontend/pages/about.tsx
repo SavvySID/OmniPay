@@ -60,7 +60,7 @@ export default function About() {
             <div>
               <strong>Any Token → USDT Conversion</strong>
               <div style={{ color: "var(--muted)" }}>
-                Pay with tokens like $ROSE, $APT, or $MATIC — receiver gets USDT on their chosen chain.
+                Pay with tokens like $ROSE, $APT, or $POL — receiver gets USDT on their chosen chain.
               </div>
             </div>
             <div>
