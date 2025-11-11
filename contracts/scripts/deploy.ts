@@ -1,7 +1,10 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const usdtAddress = process.env.USDT_ADDRESS || "0x0000000000000000000000000000000000000000"; // set mock USDT on testnet
+  const usdtAddress = process.env.USDT_ADDRESS || "";
+  if (!usdtAddress || usdtAddress === "0x0000000000000000000000000000000000000000") {
+    throw new Error("USDT_ADDRESS must be set in contracts/.env to the deployed MockUSDT address");
+  }
 
   const Router = await ethers.getContractFactory("OmniPayRouter");
   const MockBridge = await ethers.getContractFactory("MockAxelarBridge");
