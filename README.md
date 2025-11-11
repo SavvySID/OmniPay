@@ -1,46 +1,65 @@
-OmniPay — Wave 1–2 Foundation (USDT Cross-Chain Payment Hub)
+**OmniPay**
 
-Monorepo structure:
+USDT Cross-Chain Payment Hub (demo). Frontend is a Next.js app powered by wagmi/viem. Contracts include a mock bridge and router for local/testing flows. A minimal mock backend can provide route estimates, but the frontend works without it.
 
-- contracts/ — Solidity (Hardhat). Deploys `OmniPayRouter` + `MockAxelarBridge` to Polygon Mumbai.
-- backend/ — Node.js Express mock routing engine. `/route/estimate` returns route/fee JSON.
-- frontend/ — Next.js + wagmi demo UI to send cross-chain USDT (mock bridge).
+**Features**
 
-Quick start
+- Send USDT cross-chain (mocked router/bridge for demo)
+- Wallet connect/disconnect (injected connector)
+- Auto-approve USDT if allowance is insufficient
+- Testnets: Polygon Amoy and Sepolia
 
-1) Contracts
+**Monorepo**
 
-- cd contracts
-- Copy `.env` with: `PRIVATE_KEY`, `POLYGON_MUMBAI_RPC`, `USDT_ADDRESS` (testnet USDT or mock)
-- npm i
-- npm run build
-- npm run deploy:mumbai
-- Capture the `Router` address and set it to NEXT_PUBLIC_ROUTER_ADDRESS in frontend.
+- contracts/ — Hardhat Solidity: `OmniPayRouter`, `MockAxelarBridge`, optional `MockUSDT`
+- backend/ — Optional Express mock: `/route/estimate` returns example route/fee
+- frontend/ — Next.js + wagmi demo UI
 
-2) Backend
+**Requirements**
 
-- cd backend
-- npm i
-- npm run dev
-- POST http://localhost:4000/route/estimate { sourceChain, destChain, amountUSDT }
+- Node.js 18 or 20
+- npm (or yarn/pnpm)
+- Wallet (e.g., MetaMask) with testnet funds if testing on Amoy/Sepolia
 
-3) Frontend
+**Environment variables (frontend)**
 
-- cd frontend
-- npm i
-- set env: NEXT_PUBLIC_BACKEND_URL, NEXT_PUBLIC_POLYGON_MUMBAI_RPC, NEXT_PUBLIC_ROUTER_ADDRESS
-- npm run dev
+Create `frontend/.env.local` and set:
 
-MVP flow (mocked)
+```
+NEXT_PUBLIC_ROUTER_ADDRESS=0x...            # Deployed OmniPayRouter
+NEXT_PUBLIC_USDT_ADDRESS_80002=0x...        # (optional) Amoy USDT
+NEXT_PUBLIC_USDT_ADDRESS_11155111=0x...     # (optional) Sepolia USDT
+```
 
-- Connect wallet.
-- Enter amount + recipient.
-- See estimation (from backend).
-- Submit `sendCrossChainUSDT` to `OmniPayRouter` which uses `MockAxelarBridge` to simulate delivery.
+If specific USDT addresses are not set, the UI may show a notice to switch network or configure addresses.
 
-Notes
+**Contracts (optional, for your own deployments)**
 
-- The bridge is mocked: it immediately calls `receiveUSDT` locally to simulate cross-chain.
-- Replace `MockAxelarBridge` with real Axelar/LayerZero in later waves.
+```
+cd contracts
+cp env.example .env   # fill PRIVATE_KEY, RPC URLs, optional USDT
+npm i
+npm run build
+npm run deploy:amoy   # or your target network
+```
 
+Note the deployed `OmniPayRouter` address and set it in the frontend env file.
 
+**Frontend dev**
+
+```
+cd frontend
+npm i
+npm run dev
+```
+
+Open http://localhost:3000 and:
+
+- Connect wallet
+- Enter amount and recipient address
+- Click “Send Cross‑Chain” (mock flow)
+
+---
+
+- The demo uses a mocked bridge. Replace with a real bridge (e.g., Axelar/LayerZero) in production.
+- Ensure RPC endpoints are reliable and rate-limit friendly for your chosen networks.
