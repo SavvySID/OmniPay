@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ReactNode } from "react";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 type Props = { children: ReactNode };
 
@@ -22,13 +23,13 @@ export default function Layout({ children }: Props) {
             <span style={{ fontSize: "20px", fontWeight: 700 }}>OmniPay</span>
             <span className="brand-badge">Cross-Chain</span>
           </Link>
-          <div className="nav-links" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
+          <div className="nav-links">
             <Link className="nav-link" href="/feature-transfer">OmniTransfer</Link>
             <Link className="nav-link" href="/feature-converter">OmniConvert</Link>
             <Link className="nav-link" href="/docs">Docs</Link>
             <Link className="nav-link" href="/about">About</Link>
           </div>
-          <a className="cta" href="/feature-transfer">Get Started</a>
+          <ConnectButton />
         </div>
       </nav>
 
