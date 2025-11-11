@@ -5,7 +5,7 @@ import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { sepolia } from "wagmi/chains";
-import { defineChain } from "viem";
+import { defineChain, http } from "viem";
 import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
 import Layout from "../components/Layout";
@@ -36,10 +36,16 @@ const polygonAmoy = defineChain({
 
 const queryClient = new QueryClient();
 
+const amoyRpc = process.env.NEXT_PUBLIC_POLYGON_AMOY_RPC || "https://rpc-amoy.polygon.technology";
+
 const config = getDefaultConfig({
   appName: "OmniPay",
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "YOUR_PROJECT_ID",
   chains: [polygonAmoy, sepolia],
+  transports: {
+    [polygonAmoy.id]: http(amoyRpc),
+    [sepolia.id]: http("https://rpc.sepolia.org"),
+  },
   ssr: false, // Disable SSR to avoid ESM/CommonJS issues with WalletConnect
 });
 
