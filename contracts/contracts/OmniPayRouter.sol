@@ -8,7 +8,7 @@ interface IERC20 {
 
 interface IBridge {
     function sendCrossChainMessage(
-        uint16 destChainId,
+        uint32 destChainId,
         bytes calldata payload
     ) external payable;
 }
@@ -17,7 +17,7 @@ contract OmniPayRouter {
     address public usdt;
     address public bridge;
 
-    event CrossChainUSDTInitiated(address indexed sender, uint256 amount, uint16 destChainId, address indexed recipient);
+    event CrossChainUSDTInitiated(address indexed sender, uint256 amount, uint32 destChainId, address indexed recipient);
     event USDTReceived(address indexed recipient, uint256 amount);
 
     constructor(address _usdt, address _bridge) {
@@ -27,9 +27,11 @@ contract OmniPayRouter {
 
     function sendCrossChainUSDT(
         uint256 amount,
-        uint16 destChainId,
+        uint32 destChainId,
         address recipient
     ) external payable {
+        require(usdt != address(0), "USDT not configured");
+        require(bridge != address(0), "Bridge not configured");
         require(amount > 0, "Amount must be > 0");
         IERC20(usdt).transferFrom(msg.sender, address(this), amount);
 
