@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	reactStrictMode: false,
+	// Disable trace file to avoid Windows EPERM errors
+	experimental: {
+		outputFileTracingExcludes: {
+			'*': [],
+		},
+	},
+	// Disable telemetry to reduce file operations
+	telemetry: false,
   webpack: (config, { isServer }) => {
     // Fix for MetaMask SDK trying to import React Native packages in browser
     if (!isServer) {
