@@ -1,9 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import SendUSDTForm from "../components/SendUSDTForm";
 import RouteDetails from "../components/RouteDetails";
+
+const SendUSDTForm = dynamic(() => import("../components/SendUSDTForm"), { ssr: false });
 
 export default function FeatureTransfer() {
   const [estimate, setEstimate] = useState<any>(null);
