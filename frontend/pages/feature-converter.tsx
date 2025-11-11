@@ -11,7 +11,7 @@ export default function FeatureConverter() {
         <div className="card-inner">
           <h3 style={{ marginTop: 0 }}>What it does</h3>
           <ul>
-            <li>Accepts tokens like ROSE, APT, or MATIC on their native chains</li>
+            <li>Accepts tokens like ROSE, APT, or POL on their native chains</li>
             <li>Bridges value cross‑chain using interoperable messaging</li>
             <li>Swaps to USDT on the destination chain and sends to the recipient</li>
           </ul>
